@@ -1,0 +1,328 @@
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.geometry.*;
+import javafx.stage.Stage;
+
+
+
+
+import java.util.Optional;
+
+
+
+public class Main extends Application {
+
+    private static final int FIRST_CLASS_ROWS = 4;
+    private static final int FIRST_CLASS_COLS = 5;
+    private static final int FIRST_CLASS_PRICE = 50;
+    private static final int SECOND_CLASS_ROWS = 8;
+    private static final int SECOND_CLASS_COLS = 5;
+    private static final int SECOND_CLASS_PRICE = 15;
+    private static final int THIRD_CLASS_ROWS = 10;
+    private static final int THIRD_CLASS_COLS = 5;
+    private static final int THIRD_CLASS_PRICE = 10;
+
+    private Pair<Character, Integer>[] mergedSeats;
+    private Label totalAmountLabel;
+    private int totalAmount;
+    private Scene initialScene;
+
+    public void initializeSeats() {
+        mergedSeats = new Pair[FIRST_CLASS_ROWS * FIRST_CLASS_COLS + SECOND_CLASS_ROWS * SECOND_CLASS_COLS + THIRD_CLASS_ROWS * THIRD_CLASS_COLS];
+
+        int seatNumber = 1;
+        int index = 0;
+
+        // Initialize the mergedSeats array with seat numbers and 'X' for availability
+        for (int row = 0; row < FIRST_CLASS_ROWS; row++) {
+            for (int col = 0; col < FIRST_CLASS_COLS; col++) {
+                mergedSeats[index] = new Pair<>('X', seatNumber);
+                seatNumber++;
+                index++;
+            }
+        }
+
+        for (int row = 0; row < SECOND_CLASS_ROWS; row++) {
+            for (int col = 0; col < SECOND_CLASS_COLS; col++) {
+                mergedSeats[index] = new Pair<>('X', seatNumber);
+                seatNumber++;
+                index++;
+            }
+        }
+
+        for (int row = 0; row < THIRD_CLASS_ROWS; row++) {
+            for (int col = 0; col < THIRD_CLASS_COLS; col++) {
+                mergedSeats[index] = new Pair<>('X', seatNumber);
+                seatNumber++;
+                index++;
+            }
+        }
+    }
+
+    public void start(Stage primaryStage) {
+        initializeSeats();
+        totalAmount = 0;
+
+        primaryStage.setTitle("Cinema Seat Reservation");
+
+        // Create a VBox for the initial scene with the ComboBox
+        VBox buttonVbox = new VBox();
+        buttonVbox.setPadding(new Insets(100));
+        buttonVbox.setSpacing(10);
+        buttonVbox.setAlignment(Pos.CENTER);
+        
+
+        // Create a button for class selection
+      
+        Button classButton = new Button("Show Seats");
+      classButton.setStyle("-fx-background-color: transparent; -fx-border-color: #800000; -fx-border-width: 1px; -fx-border-radius: 5px; -fx-text-fill: #f5f5f5; -fx-font-family: 'Century Gothic';");
+        classButton.setOnAction(e -> {
+              primaryStage.setScene(getSeatSelectionScene(primaryStage)); // Switch to the seat selection scene
+          
+        });
+buttonVbox.getChildren().add(classButton);
+        
+        // background photo
+         Background background = new Background(new BackgroundImage(new Image("https://u7.uidownload.com/vector/780/669/vector-movie-cinema-hall-theater-with-projection-wall-eps.jpg"),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT));
+         buttonVbox.setBackground(background);
+
+        // Create the initial scene with the VBox for the ComboBox
+        Scene initialScene = new Scene(buttonVbox, 700, 500);
+
+
+        // Create the seat selection scene with the seat buttons, total amount label, and reset button
+        Scene seatSelectionScene = getSeatSelectionScene(primaryStage);
+
+        // Set the initial scene
+        primaryStage.setScene(initialScene);
+        primaryStage.show();
+    }
+
+    private Scene getSeatSelectionScene(Stage primaryStage) {
+        // Create a VBox for the seat selection scene
+        VBox seatSelectionVbox = new VBox();
+        seatSelectionVbox.setPadding(new Insets(60));
+        seatSelectionVbox.setSpacing(10);
+        
+        totalAmountLabel = new Label("Total Amount: $" + totalAmount);
+        totalAmountLabel.setStyle("-fx-background-color: #FFFFFF;");
+      
+        
+      
+        Button startButton = new Button("Return to Start Menu");
+      startButton.setStyle("-fx-background-color: transparent; -fx-border-color: #800000; -fx-border-width: 1px; -fx-border-radius: 5px; -fx-text-fill: #f5f5f5; -fx-font-family: 'Century Gothic';");
+         startButton.setOnAction(e -> {
+            primaryStage.setScene(initialScene); // Return to the initial scene when clicked
+           totalAmountLabel.setText("Total Amount: $" + totalAmount);
+        });
+
+        
+      
+      
+        Button resetButton = new Button("Reset Seats");
+      resetButton.setStyle("-fx-background-color: transparent; -fx-border-color: #800000; -fx-border-width: 1px; -fx-border-radius: 5px; -fx-text-fill: #f5f5f5; -fx-font-family: 'Century Gothic';");
+        resetButton.setOnAction(e -> {
+      initializeSeats(); // Reset the seats
+            seatSelectionVbox.getChildren().clear();
+            addSeatButtons(seatSelectionVbox, mergedSeats);
+            totalAmount = 0;
+            updateTotalAmountLabel();
+        });
+
+
+    
+
+
+        
+
+        HBox headerHBox = new HBox();
+        headerHBox.setAlignment(Pos.CENTER);
+        headerHBox.setSpacing(10);
+  
+        Label firstClassLabel = new Label("First Class");
+        Button firstClassButton = new Button();
+        firstClassButton.setStyle("-fx-background-color: #f5f5dc;");
+        firstClassButton.setPrefSize(20,20);
+       
+        Label secondClassLabel = new Label("Second Class");
+        Button secondClassButton = new Button();
+        secondClassButton.setStyle("-fx-background-color: #800000;");
+        secondClassButton.setPrefSize(20,20);
+        
+  
+        Label thirdClassLabel = new Label("Third Class");
+        Button thirdClassButton = new Button();
+        thirdClassButton.setStyle("-fx-background-color: #000435;");
+        thirdClassButton.setPrefSize(20,20);
+   
+  
+        headerHBox.getChildren().addAll(firstClassLabel, firstClassButton, secondClassLabel, secondClassButton, thirdClassLabel, thirdClassButton);
+     
+
+
+        seatSelectionVbox.getChildren().addAll(totalAmountLabel, headerHBox, resetButton, startButton);
+
+        // Add the seat buttons
+        addSeatButtons(seatSelectionVbox, mergedSeats);
+
+        // Create a separate HBox for the total label and reset button
+        HBox totalHBox = new HBox();
+        totalHBox.setAlignment(Pos.CENTER_RIGHT);
+        totalHBox.getChildren().addAll(totalAmountLabel);
+        VBox.setMargin(totalHBox, new Insets(0, 0,0, 0));
+
+        // Add the total HBox and seat buttons VBox to a parent VBox
+        VBox parentVBox = new VBox();
+        parentVBox.getChildren().addAll(totalHBox, seatSelectionVbox);
+      
+
+        Background background = new Background(new BackgroundImage(new Image("https://u7.uidownload.com/vector/780/669/vector-movie-cinema-hall-theater-with-projection-wall-eps.jpg"), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT));
+        parentVBox.setBackground(background);
+
+        // Create the seat selection scene with the parent VBox
+        Scene seatSelectionScene = new Scene(parentVBox, 700, 500);
+
+        return seatSelectionScene;
+    }
+
+    public void addSeatButtons(VBox vbox, Pair<Character, Integer>[] seats) {
+    // Create a grid pane to hold the seat buttons
+    GridPane gridPane = new GridPane();
+    gridPane.setPadding(new Insets(0));
+    gridPane.setHgap(3);
+    gridPane.setVgap(3);
+
+    // Add seat buttons for second class
+    for (int i = 0; i < SECOND_CLASS_ROWS * SECOND_CLASS_COLS; i++) {
+        Button seatButton = createSeatButton(seats[FIRST_CLASS_ROWS * FIRST_CLASS_COLS + i]);
+        gridPane.add(seatButton, i % SECOND_CLASS_COLS, i / SECOND_CLASS_COLS);
+    }
+
+    // Add seat buttons for first class
+    GridPane firstClassGridPane = new GridPane();
+    firstClassGridPane.setPadding(new Insets(3));
+    firstClassGridPane.setHgap(3);
+    firstClassGridPane.setVgap(3);
+    for (int i = 0; i < FIRST_CLASS_ROWS * FIRST_CLASS_COLS; i++) {
+        Button seatButton = createSeatButton(seats[i]);
+        firstClassGridPane.add(seatButton, i % FIRST_CLASS_COLS, i / FIRST_CLASS_COLS);
+    }
+
+    // Add seat buttons for third class
+    GridPane thirdClassGridPane = new GridPane();
+    thirdClassGridPane.setPadding(new Insets(3));
+    thirdClassGridPane.setHgap(3);
+    thirdClassGridPane.setVgap(3);
+    for (int i = 0; i < THIRD_CLASS_ROWS * THIRD_CLASS_COLS; i++) {
+        Button seatButton = createSeatButton(seats[FIRST_CLASS_ROWS * FIRST_CLASS_COLS + SECOND_CLASS_ROWS * SECOND_CLASS_COLS + i]);
+        thirdClassGridPane.add(seatButton, i % THIRD_CLASS_COLS, i / THIRD_CLASS_COLS);
+    }
+
+    // Add the grid panes to the VBox in the desired order
+    HBox hbox = new HBox();
+    hbox.getChildren().addAll(gridPane, firstClassGridPane, thirdClassGridPane);
+    vbox.getChildren().add(hbox);
+}
+
+       
+        
+        
+    
+
+    public Button createSeatButton(Pair<Character, Integer> seat) {
+        Button seatButton = new Button(seat.getFirst() + Integer.toString(seat.getSecond()));
+        seatButton.setPrefWidth(10);
+        seatButton.setPrefHeight(10);
+        
+        int seatNumber = seat.getSecond();
+
+        
+        if (seatNumber <= FIRST_CLASS_ROWS * FIRST_CLASS_COLS) {
+            seatButton.setStyle("-fx-background-color: #f5f5dc; -fx-text-fill: #000000"); // First Class color
+        } else if (seatNumber <= FIRST_CLASS_ROWS * FIRST_CLASS_COLS + SECOND_CLASS_ROWS * SECOND_CLASS_COLS) {
+            seatButton.setStyle("-fx-background-color: #800000; -fx-text-fill: #000000"); // Second Class color
+        } else {
+            seatButton.setStyle("-fx-background-color: #000435; -fx-text-fill: #FFFFFF"); // Third Class color
+        }
+        
+      
+
+        seatButton.setOnAction(e -> {
+          
+            if (seat.getFirst() == 'O') {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Seat Cancellation");
+                alert.setHeaderText("Seat " + seat.getSecond() + " is already reserved!");
+                alert.setContentText("Would you like to cancel the reservation?");
+                ButtonType cancelReservationButton = new ButtonType("Cancel Reservation");
+                ButtonType closeButton = new ButtonType("Close");
+                alert.getButtonTypes().setAll(cancelReservationButton, closeButton);
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.isPresent() && result.get() == cancelReservationButton) {
+                    if (seatNumber <= FIRST_CLASS_ROWS * FIRST_CLASS_COLS) {
+                        seatButton.setStyle("-fx-background-color: #f5f5dc; -fx-text-fill: #000000"); // First Class color
+                    } else if (seatNumber <= FIRST_CLASS_ROWS * FIRST_CLASS_COLS + SECOND_CLASS_ROWS * SECOND_CLASS_COLS) {
+                        seatButton.setStyle("-fx-background-color: #800000; -fx-text-fill: #000000"); // Second Class color
+                    } else {
+                        seatButton.setStyle("-fx-background-color: #000435; -fx-text-fill: #FFFFFF"); // Third Class color
+                    }
+
+                    alert.setContentText("Seat reservation canceled.");
+                    seat.setFirst('X');
+                    totalAmount -= getSeatPrice(seat);
+                    updateTotalAmountLabel();
+                }
+            } else {
+                Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmAlert.setTitle("Seat Reservation");
+                confirmAlert.setHeaderText(null);
+                confirmAlert.setContentText("Do you want to reserve seat " + seat.getSecond() + "?");
+                Optional<ButtonType> result = confirmAlert.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    seat.setFirst('O');
+                    seatButton.setStyle("-fx-background-color: #999999; -fx-text-fill: #FFFFFF");
+                    totalAmount += getSeatPrice(seat);
+                    showAlert("Seat " + seat.getSecond() + " reserved successfully!");
+                    updateTotalAmountLabel();
+                }
+            }
+        });
+
+        return seatButton;
+    }
+
+    private int getSeatPrice(Pair<Character, Integer> seat) {
+        int seatNumber = seat.getSecond();
+        if (seatNumber <= FIRST_CLASS_ROWS * FIRST_CLASS_COLS) {
+            return FIRST_CLASS_PRICE;
+        } else if (seatNumber <= FIRST_CLASS_ROWS * FIRST_CLASS_COLS + SECOND_CLASS_ROWS * SECOND_CLASS_COLS) {
+            return SECOND_CLASS_PRICE;
+        } else {
+            return THIRD_CLASS_PRICE;
+        }
+    }
+
+    private void updateTotalAmountLabel() {
+        totalAmountLabel.setText("Total Amount: $" + totalAmount);
+    }
+
+    public void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
